@@ -29,7 +29,9 @@
 <body>
     <header>
         @if (Context.User.FindFirstValue(ClaimTypes.Sid) != null)
-            {
+        {              
+
+
             <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 
                 <div class="container">
@@ -43,14 +45,16 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Posts" asp-action="Posts">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Theme" asp-action="Index">Theme</a>
-                        </li>
-                        
+
+                            @if (Context.User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Theme" asp-action="Index">Theme</a>
+                        </li>}
+                         
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Posts" asp-action="Index">My Post</a>
-                        </li>
-                    </ul>
+                        </li>                    </ul>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="User" asp-action="Profile">
