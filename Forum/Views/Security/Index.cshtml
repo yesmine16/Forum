@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .login-container {
+            margin-top: 50px;
+        }
+
+        .login-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background-color: #fff;
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-login {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+            .btn-login:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+
+        .forgot-password {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center login-container">
+            <div class="col-md-6">
+                <div class="card login-card">
+                    <h2 class="card-title login-title">Login</h2>
+                    <form id="loginForm" asp-controller="Security" asp-action="Login" method="post" class="needs-validation" novalidate>
+                        <div class="form-group">
+                            <label for="Username">Username:</label>
+                            <input type="text" id="Username" name="Username" class="form-control" required />
+                            <div class="invalid-feedback">Please enter your username.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Password">Password:</label>
+                            <input type="password" id="Password" name="Password" class="form-control" required />
+                            <div class="invalid-feedback">Please enter your password.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block btn-login">Login</button>
+                        </div>
+                    </form>
+                    <div class="text-center forgot-password">
+                        <a asp-action="ResetPassword">Forgot your password? Click here</a>
+                    </div>
+
+                    <!-- Sign Up button -->
+                    <div class="text-center mt-3">
+                        <a  class="btn btn-outline-primary"  asp-controller="user" asp-action="Signup">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+        })();
+    </script>
+</body>
+</html>

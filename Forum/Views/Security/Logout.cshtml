@@ -1,0 +1,19 @@
+﻿<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // This triggers the logout action when the page is loaded
+        console.log('Logged out successfully');
+        $.ajax({
+            url: '/Security/Logout', // Replace with your controller and action names
+            type: 'GET',
+            success: function(response) {
+                // Handle success if needed
+                console.log('Logged out successfully');
+            },
+            error: function(xhr, status, error) {
+                // Handle error if needed
+                console.error('Error logging out:', error);
+            }
+        });
+    });
+</script>

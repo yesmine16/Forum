@@ -1,0 +1,74 @@
+﻿@model Forum.Models.Post
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<style>
+    /* Custom styles for the create post form */
+    .form-group {
+        margin-bottom: 20px;
+    }
+</style>
+
+<h1>Create</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" class="needs-validation" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Message" class="control-label">Message:</label>
+                <input asp-for="Message" class="form-control" required />
+                <span asp-validation-for="Message" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Topic" class="control-label">Topic:</label>
+                <textarea asp-for="Topic" class="form-control" required></textarea>
+                <span asp-validation-for="Topic" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ThemeId" class="control-label">Select Theme:</label>
+                <select asp-for="ThemeId" class="form-control" id="themeDropdown" required></select>
+                <span asp-validation-for="ThemeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "/Theme/GetThemes",
+                success: function (data) {
+                    var dropdown = $("#themeDropdown");
+                    $.each(data, function (index, item) {
+                        dropdown.append($("<option></option>").val(item.id).text(item.titre));
+                    });
+
+                    console.log("Themes data:", data);
+                },
+                error: function (error) {
+                    console.error("Error fetching themes:", error);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,125 @@
+﻿@using System.Security.Claims
+@model Forum.Models.PostDetailsAggregation
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Post Details</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Message)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Message)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.DateCreationMessage)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.DateCreationMessage)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.UserName)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.UserName)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Theme)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Theme)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Topic)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Topic)
+                </dd>
+            </dl>
+            <br />
+
+            <p class="lead">Comments related to this conversation</p>
+
+            <div id="messageTable" class="list-group">
+                @foreach (var comment in Model.Messages)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@Html.DisplayFor(model => comment.Issuer)</h6>
+                            <small>@Html.DisplayFor(model => comment.TimeStamp)</small>
+                        </div>
+                        <p class="mb-1">@Html.DisplayFor(model => comment.Content)</p>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-footer">
+            @if (@Context.User.FindFirstValue(ClaimTypes.Sid) == Model.UserId.ToString())
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
+            }
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <button id="addCommentButton" class="btn btn-primary mt-3" onclick="showCommentForm()">Add Comment</button>
+
+    <div id="commentForm" style="display:none;">
+        <form id="addCommentForm" class="mt-3">
+            <div class="form-group">
+                <label for="commentContent">Comment:</label>
+                <textarea class="form-control" id="commentContent" name="commentContent" rows="3"></textarea>
+            </div>
+            <button type="button" class="btn btn-success" onclick="addComment()">Submit</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelComment()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    function showCommentForm() {
+        $('#commentForm').show();
+        $('#addCommentButton').hide();
+    }
+
+    function hideCommentForm() {
+        $('#commentForm').hide();
+        $('#addCommentButton').show();
+    }
+
+    function addComment() {
+        var commentContent = $('#commentContent').val();
+        var postId = '@Model.PostId';
+
+        $.ajax({
+            url: '/Messages/Create',
+            type: 'POST',
+            data: {
+                commentContent: commentContent,
+                postId: postId
+            },
+            success: function (data) {
+                console.log('Comment added successfully:', data);
+                location.reload();
+            },
+            error: function (error) {
+                console.error('Error adding comment:', error);
+            }
+        });
+
+        hideCommentForm();
+    }
+
+    function cancelComment() {
+        hideCommentForm();
+    }
+</script>

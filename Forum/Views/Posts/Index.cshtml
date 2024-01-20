@@ -1,0 +1,205 @@
+﻿@using System.Security.Claims
+@model List<PostDetailsAggregation>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        /* Your existing CSS styles */
+        .post-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Add style for the liked class */
+        .liked {
+            color: red; /* Change the color to your preferred color */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Posts</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Create New</a>
+    </p>
+
+    <div class="row mb-3">
+        <!-- Additional content if needed -->
+    </div>
+
+    <div class="post-list">
+        @foreach (var item in Model)
+        {
+            <div class="post-container">
+                <div class="post-header">@Html.DisplayFor(modelItem => item.Message)</div>
+                <div class="post-meta">
+                    <span>@Html.DisplayFor(modelItem => item.DateCreationMessage)</span>
+                    <span>@Html.DisplayFor(modelItem => item.UserName)</span>
+                    <span>@Html.DisplayFor(modelItem => item.Theme)</span>
+                </div>
+                <div class="post-actions d-flex justify-content-end">
+                    @if (Context.User.FindFirstValue(ClaimTypes.Sid) == item.UserId.ToString())
+                    {
+                        <div class="btn-group">
+                            <a asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-edit"></i></a>
+                            <a id="deleteButton" data-post-id="@item.Id" asp-route-id="@item.Id" class="ml-2"><i class="fas fa-trash-alt"></i></a>
+
+                        </div>
+                    }
+                    <div class="btn-group">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="ml-2"><i class="fas fa-info-circle"></i></a>
+                    </div>
+                </div>
+
+                <div class="post-icons">
+                    <span class="comments-icon"><i class="fas fa-comments"></i><span class="comments-count" data-post-id="@item.Id"></span></span>
+                    <span class="likes-icon" onclick="testaddLike('@item.Id', this)"><i class="fas fa-thumbs-up"></i><span class="likes-count" data-post-id="@item.Id"></span></span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function testaddLike(postId, element) {
+
+            var userId = '@(Context.User.FindFirstValue(ClaimTypes.Sid))';
+
+            $.ajax({
+                type: "POST",
+                url: "/Likes/IsLiked?idPost=" + postId + "&userId=" + userId,
+                success: function (isLiked) {
+                    if (isLiked) {
+                        removeLike(postId, userId, element);
+                    } else {
+                        addLike(postId, userId, element);
+                    }
+                },
+                error: function () {
+                    alert("Error checking if the post is liked");
+                }
+            });
+        }
+
+        function addLike(postId, userId, element) {
+            $.ajax({
+                type: "POST",
+                url: "/Likes/AddLike?idPost=" + postId,
+                success: function () {
+                    updateLikesCount(postId, element);
+                },
+                error: function () {
+                    alert("Error liking the post");
+                }
+            });
+        }
+
+        function removeLike(postId, userId, element) {
+            $.ajax({
+                type: "POST",
+                url: "/Likes/RemoveLike?idPost=" + postId + "&userId=" + userId,
+                success: function () {
+                    updateLikesCount(postId, element);
+                    console.log("im here")
+                    updateLikeIcon(element, false);
+                },
+                error: function () {
+                    alert("Error removing the like");
+                }
+            });
+        }
+
+        function updateLikesCount(postId, element) {
+            var likesCountSpan = $(".likes-count[data-post-id='" + postId + "']");
+            $.ajax({
+                type: "GET",
+                url: "/Likes/LikesSum?postId=" + postId,
+                success: function (data) {
+                    likesCountSpan.text(data);
+                    updateLikeIcon(element, data);
+                },
+                error: function () {
+                    likesCountSpan.text("Error fetching likes");
+                }
+            });
+        }
+
+        function updateLikeIcon(element, isLiked) {
+            var likesIcon = $(element).find("i");
+            if (isLiked) {
+                likesIcon.addClass("liked");
+            } else {
+                likesIcon.removeClass("liked");
+            }
+        }
+
+        function updateCommentsCount(postId) {
+            var commentsCountSpan = $(".comments-count[data-post-id='" + postId + "']");
+            $.ajax({
+                type: "GET",
+                url: "/Messages/CommentsSum?postId=" + postId,
+                success: function (data) {
+                    commentsCountSpan.text(data);
+                },
+                error: function () {
+                    commentsCountSpan.text("Error fetching comments");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $(".likes-count, .comments-count").each(function () {
+                var postId = $(this).data("post-id");
+                updateLikesCount(postId, null);
+                updateCommentsCount(postId);
+            });
+        });
+        $(document).ready(function () {
+            $("#deleteButton").on("click", function () {
+                var postId = $(this).data("postId");
+                console.log(postId);
+                $.ajax({
+                    type: "POST",
+                    url: "/Posts/Delete?postId=" + postId,
+                    success: function (data) {
+                        window.location.href = "/Posts/Posts";
+                    },
+                    error: function () {
+                        alert("An error occurred while deleting the post.");
+                    }
+                });
+            });
+        });
+
+        function checkAllPostsOnLoad() {
+            $(".likes-icon").each(function () {
+                var postId = $(this).find(".likes-count").data("post-id");
+                var element = $(this);
+
+                // Extract user ID from JWT
+                var userId = '@(Context.User.FindFirstValue(ClaimTypes.Sid))';
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Likes/IsLiked?idPost=" + postId + "&userId=" + userId,
+                    success: function (isLiked) {
+                        updateLikeIcon(element, isLiked);
+                    },
+                    error: function () {
+                        alert("Error checking if the post is liked");
+                    }
+                });
+            });
+        }
+        checkAllPostsOnLoad()
+    </script>
+
+</body>
+</html>

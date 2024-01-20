@@ -1,0 +1,68 @@
+﻿@model Forum.Models.User
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<style>
+    #profile-pic {
+        max-width: 100px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+    }
+
+    .profile-details {
+        margin-top: 20px;
+    }
+</style>
+
+<h1>Profile</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <!-- Profile Picture -->
+        @* <img id="profile-pic" src="@Model.CheminAvatar" alt="Profile Picture"> *@
+        @if (!string.IsNullOrEmpty(Model.CheminAvatar))
+        {
+            <img id="profile-pic" src="@Model.CheminAvatar" alt="Profile Picture">
+        }
+        else
+        {
+            <img id="profile-pic" src="@Model.CheminAvatar" alt="Profile Picture" onerror="this.onerror=null;this.src='https://static.vecteezy.com/ti/vecteur-libre/p3/1840612-image-profil-icon-male-icon-human-or-people-sign-and-symbol-vector-gratuit-vectoriel.jpg';">
+        }        <!-- Edit Profile Link -->
+        <div class="mt-3">
+            <a asp-action="Edit" asp-controller="user" asp-route-id="@Model?.Id" class="btn btn-primary">Edit Profile</a>
+            <a asp-action="ChangePassWordLogedIn" asp-controller="security" asp-route-id="@Model?.Id" class="btn btn-primary">Change password</a>
+
+        </div>
+    </div>
+    <div class="col-md-8">
+        <!-- User Details -->
+        <div class="profile-details">
+            <h4>User Information</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Pseudonyme)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Pseudonyme)
+                </dd>
+
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Email)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Email)
+                </dd>
+
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.CheminAvatar)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.CheminAvatar)
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
